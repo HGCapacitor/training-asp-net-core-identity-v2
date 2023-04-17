@@ -14,5 +14,5 @@ services:
         - ASPNETCORE_URLS=https://+;http://+
         - ASPNETCORE_Kestrel__Certificates__Default__Password=development
       volumes:
-        - c:\users\hgcap\.aspnet\https:/https/:ro
+        - ${USERPROFILE}\.aspnet\https:/https/:ro
       restart: always
