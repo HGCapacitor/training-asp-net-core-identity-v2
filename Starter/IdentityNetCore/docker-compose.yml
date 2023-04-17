@@ -15,4 +15,3 @@ services:
         - ASPNETCORE_Kestrel__Certificates__Default__Password=development
       volumes:
         - ${USERPROFILE}\.aspnet\https:/https/:ro
-      restart: always
