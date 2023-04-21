@@ -13,5 +13,14 @@ services:
         - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
         - ASPNETCORE_URLS=https://+;http://+
         - ASPNETCORE_Kestrel__Certificates__Default__Password=development
+        - IDENTITY_CONTEXT=Server=identity-store,1433;Database=IdentityDb;user=SA;password=development;
       volumes:
         - ${USERPROFILE}\.aspnet\https:/https/:ro
+
+    identity-store:
+      image: mcr.microsoft.com/mssql/server
+      environment:
+        SA_PASSWORD: "development"
+        ACCEPT_EULA: "Y"
+      ports:
+        - "1433:1433"
