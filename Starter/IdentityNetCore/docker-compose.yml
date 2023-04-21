@@ -1,6 +1,6 @@
 version: "3.4"
 services: 
-    identitiy-net-core-starter:
+    identity-net-core-starter:
       image: identity-net-core:starter
       build:
         context: .
