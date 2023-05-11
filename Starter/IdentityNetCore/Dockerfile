@@ -17,4 +17,5 @@ RUN dotnet publish "IdentityNetCore.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY ./aspnet/https/dotnet-devcert.pfx /https/
 ENTRYPOINT ["dotnet", "IdentityNetCore.dll"]

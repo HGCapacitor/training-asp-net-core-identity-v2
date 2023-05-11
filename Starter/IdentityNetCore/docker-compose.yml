@@ -10,12 +10,13 @@ services:
         - "5443:443"
       environment:
         - ASPNETCORE_HTTPS_PORT=443
-        - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+        - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dotnet-devcert.pfx
         - ASPNETCORE_URLS=https://+;http://+
-        - ASPNETCORE_Kestrel__Certificates__Default__Password=development
-        - IDENTITY_CONTEXT=Server=identity-store,1433;Database=IdentityDb;user=SA;password=development;
-      volumes:
-        - ${USERPROFILE}\.aspnet\https:/https/:ro
+        - ASPNETCORE_Kestrel__Certificates__Default__Password=
+        - IDENTITY_CONTEXT=Server=identity-store,1433;Database=IdentityDb;user=SA;password="";
+#      volumes:
+#        - ./aspnet/https:/https:ro
+#        - ./aspnet/https/dotnet-devcert.pfx:/https/dotnet-devcert.pfx:ro
 
     identity-store:
       image: mcr.microsoft.com/mssql/server
