@@ -6,16 +6,16 @@ namespace IdentityNetCore;
 
 public class Configuration
 {
-    readonly private string _identityContextKey = "IDENTITY_CONTEXT";
+    readonly private string _identityDbContextKey = "IDENTITY_CONTEXT";
 
-    public string? FacadeContextConnectionString { get; private set; }
+    public string? IdentityDbContextConnectionString { get; private set; }
     
     public Configuration(WebApplicationBuilder builder)
     {
-        FacadeContextConnectionString = Environment.GetEnvironmentVariable(_identityContextKey);
-        if(FacadeContextConnectionString == null)
+        IdentityDbContextConnectionString = Environment.GetEnvironmentVariable(_identityDbContextKey);
+        if(IdentityDbContextConnectionString == null)
         {
-            FacadeContextConnectionString = builder.Configuration.GetConnectionString("IdentityContext");
+            IdentityDbContextConnectionString = builder.Configuration.GetConnectionString("IdentityContext");
         }
     }
 }

@@ -13,7 +13,7 @@ services:
         - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dotnet-devcert.pfx
         - ASPNETCORE_URLS=https://+;http://+
         - ASPNETCORE_Kestrel__Certificates__Default__Password=
-        - IDENTITY_CONTEXT=Server=identity-store,1433;Database=IdentityDb;user=SA;password="";
+        - IDENTITY_CONTEXT=Server=identity-store,1433;Database=IdentityDb;user=SA;password="Unk0wnAga1n";
 #      volumes:
 #        - ./aspnet/https:/https:ro
 #        - ./aspnet/https/dotnet-devcert.pfx:/https/dotnet-devcert.pfx:ro
@@ -21,7 +21,7 @@ services:
     identity-store:
       image: mcr.microsoft.com/mssql/server
       environment:
-        SA_PASSWORD: "development"
+        SA_PASSWORD: "Unk0wnAga1n"
         ACCEPT_EULA: "Y"
       ports:
         - "1433:1433"

@@ -1,5 +1,7 @@
 using IdentityNetCore;
+using IdentityNetCore.Data;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -7,6 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 var configuration = new Configuration(builder);
 
+builder.Services.AddDbContext<ApplicationDbContext>(
+    o => o.UseSqlServer(
+        configuration.IdentityDbContextConnectionString)
+    );
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
