@@ -1,6 +1,8 @@
+using System;
 using IdentityNetCore;
 using IdentityNetCore.Data;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,8 +15,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(
     o => o.UseSqlServer(
         configuration.IdentityDbContextConnectionString)
     );
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequiredLength = 3;
+    options.Password.RequireDigit = true;
+    options.Password.RequireNonAlphanumeric = true;
 
+    options.Lockout.MaxFailedAccessAttempts = 3;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+});
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -29,6 +41,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseEndpoints(endpoints =>
