@@ -1,6 +1,7 @@
 using System;
 using IdentityNetCore;
 using IdentityNetCore.Data;
+using IdentityNetCore.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +13,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 var configuration = new Configuration(builder);
 
+builder.Services.AddSingleton(configuration);
+builder.Services.AddScoped<IEMailService, GMailService>();
 builder.Services.AddDbContext<ApplicationDbContext>(
     o => o.UseSqlServer(
         configuration.IdentityDbContextConnectionString)
     );
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 builder.Services.AddControllersWithViews();
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -27,6 +31,8 @@ builder.Services.Configure<IdentityOptions>(options =>
 
     options.Lockout.MaxFailedAccessAttempts = 3;
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+
+    options.SignIn.RequireConfirmedEmail = true;
 });
 builder.Services.ConfigureApplicationCookie(options =>
 {
