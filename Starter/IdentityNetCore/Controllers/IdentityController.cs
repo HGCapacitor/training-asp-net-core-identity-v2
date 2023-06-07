@@ -11,22 +11,25 @@ public class IdentityController : Controller
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly SignInManager<IdentityUser> _signinManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IEMailService _eMailService;
 
     public IdentityController(
         UserManager<IdentityUser> userManager,
         SignInManager<IdentityUser> signinManager,
+        RoleManager<IdentityRole> roleManager,
         IEMailService eMailService)
     {
         _userManager = userManager;
         _signinManager = signinManager;
+        _roleManager = roleManager;
         _eMailService = eMailService;
     }
     
     // GET
     public ActionResult Signup()
     {
-        var model = new SignupViewModel();
+        var model = new SignupViewModel() {Role = "Member"};
         return View(model);
     }
     
@@ -35,8 +38,20 @@ public class IdentityController : Controller
     {
         if (ModelState.IsValid)
         {
-            if (await _userManager.FindByEmailAsync(model.Email) != null)
+            if (await _userManager.FindByEmailAsync(model.Email) == null)
             {
+                if (!await _roleManager.RoleExistsAsync(model.Role))
+                {
+                    var role = new IdentityRole { Name = model.Role };
+                    var roleResult = await _roleManager.CreateAsync(role);
+                    if (!roleResult.Succeeded)
+                    {
+                        var errors = roleResult.Errors.Select(s => s.Description);
+                        ModelState.AddModelError("Role", string.Join(",", errors));
+                        return View(model);
+                    }
+                }
+                
                 var user = new IdentityUser
                 {
                     Email = model.Email,
@@ -46,6 +61,7 @@ public class IdentityController : Controller
                 if (result.Succeeded)
                 {
                     user = await _userManager.FindByEmailAsync(model.Email);
+                    await _userManager.AddToRoleAsync(user, model.Role);
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var confirmationLink = Url.ActionLink("ConfirmEmail", "Identity", new {userId = user.Id, token = token});
                     await _eMailService.SendEmailAsync(new EMail
@@ -94,6 +110,11 @@ public class IdentityController : Controller
             var result = await _signinManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, false);
             if (result.Succeeded)
             {
+                var user = await _userManager.FindByEmailAsync(model.Username);
+                if (await _userManager.IsInRoleAsync(user, "Member"))
+                {
+                    return RedirectToAction("Member", "Home");
+                }
                 return RedirectToAction("Index", "Home");
             }
             ModelState.AddModelError("Login", "Cannot login");
