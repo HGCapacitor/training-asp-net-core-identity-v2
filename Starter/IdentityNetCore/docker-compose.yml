@@ -13,14 +13,13 @@ services:
         - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dotnet-devcert.pfx
         - ASPNETCORE_URLS=https://+;http://+
         - ASPNETCORE_Kestrel__Certificates__Default__Password=
-        - IDENTITY_CONTEXT=Server=identity-store,1433;Database=IdentityDb;user=SA;password="Unk0wnAga1n";
+        - IDENTITY_CONTEXT=Server=identity-store,1433;Database=IdentityDb;user=SA;password=Unk0wnAga1n;TrustServerCertificate=True;
         - EMAIL_ACCOUNT=,
         - EMAIL_PASSWORD=,
         - EMAIL_HOST=,
         - EMAIL_PORT=
-#      volumes:
-#        - ./aspnet/https:/https:ro
-#        - ./aspnet/https/dotnet-devcert.pfx:/https/dotnet-devcert.pfx:ro
+      volumes:
+        - ./aspnet/https/dotnet-devcert.pfx:/https/dotnet-devcert.pfx:ro
 
     identity-store:
       image: mcr.microsoft.com/mssql/server
