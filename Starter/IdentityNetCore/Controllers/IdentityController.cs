@@ -121,6 +121,12 @@ public class IdentityController : Controller
         }
         return View(model);
     }
+
+    public async Task<IActionResult> Signout()
+    {
+        await _signinManager.SignOutAsync();
+        return RedirectToAction("Index", "Home");
+    }
     
     public IActionResult AccessDenied()
     {
