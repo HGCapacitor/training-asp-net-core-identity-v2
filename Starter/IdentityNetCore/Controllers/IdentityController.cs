@@ -114,12 +114,12 @@ public class IdentityController : Controller
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Username);
-                var userClaims = await _userManager.GetClaimsAsync(user);
-                if (!userClaims.Any(c => c.Type == "Department"))
-                {
-                    ModelState.AddModelError("Claim", "User not in Tech department");
-                    return View(model);
-                }
+                // var userClaims = await _userManager.GetClaimsAsync(user);
+                // if (!userClaims.Any(c => c.Type == "Department"))
+                // {
+                //     ModelState.AddModelError("Claim", "User not in Tech department");
+                //     return View(model);
+                // }
                 if (await _userManager.IsInRoleAsync(user, "Member"))
                 {
                     return RedirectToAction("Member", "Home");

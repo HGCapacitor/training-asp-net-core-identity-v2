@@ -40,6 +40,18 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromHours(10);
 });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("MemberDep", p =>
+    {
+        p.RequireClaim("Department", "Tech").RequireRole("Member");
+    });
+    options.AddPolicy("AdminDep", p =>
+    {
+        p.RequireClaim("Department", "Tech").RequireRole("Admin");
+    });
+});
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
