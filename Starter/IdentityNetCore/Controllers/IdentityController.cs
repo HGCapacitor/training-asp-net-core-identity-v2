@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityNetCore.Models;
 using IdentityNetCore.Services;
@@ -61,6 +62,8 @@ public class IdentityController : Controller
                 if (result.Succeeded)
                 {
                     user = await _userManager.FindByEmailAsync(model.Email);
+                    var claim = new Claim("Department", model.Department);
+                    await _userManager.AddClaimAsync(user, claim);
                     await _userManager.AddToRoleAsync(user, model.Role);
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var confirmationLink = Url.ActionLink("ConfirmEmail", "Identity", new {userId = user.Id, token = token});
@@ -111,6 +114,12 @@ public class IdentityController : Controller
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Username);
+                var userClaims = await _userManager.GetClaimsAsync(user);
+                if (!userClaims.Any(c => c.Type == "Department"))
+                {
+                    ModelState.AddModelError("Claim", "User not in Tech department");
+                    return View(model);
+                }
                 if (await _userManager.IsInRoleAsync(user, "Member"))
                 {
                     return RedirectToAction("Member", "Home");

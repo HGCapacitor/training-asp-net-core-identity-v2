@@ -12,4 +12,6 @@ public class SignupViewModel
     public string Password { get; set; }
     [Required]
     public string Role { get; set; }
+    [Required]
+    public string Department { get; set; }
 }
