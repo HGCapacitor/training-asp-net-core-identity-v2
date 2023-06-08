@@ -6,7 +6,6 @@ using IdentityNetCore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace IdentityNetCore.Controllers;
 
@@ -90,10 +89,12 @@ public class IdentityController : Controller
     [Authorize]
     public async Task<IActionResult> MFASetup()
     {
+        const string provider = "aspnetidentity";
         var user = await _userManager.GetUserAsync(User);
         await _userManager.ResetAuthenticatorKeyAsync(user);
         var token = await _userManager.GetAuthenticatorKeyAsync(user);
-        var model = new MFAViewModel{Token = token};
+        var qrCodeUrl = $"otpauth://totp/{provider}:{user.Email}?secret={token}&issuer={provider}&digits=6";
+        var model = new MFAViewModel{Token = token, QRCodeUrl = qrCodeUrl};
         return View(model);
     }
 
@@ -139,26 +140,51 @@ public class IdentityController : Controller
         if (ModelState.IsValid)
         {
             var result = await _signinManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, false);
-            if (result.Succeeded)
+            if (result.RequiresTwoFactor)
             {
-                var user = await _userManager.FindByEmailAsync(model.Username);
-                // var userClaims = await _userManager.GetClaimsAsync(user);
-                // if (!userClaims.Any(c => c.Type == "Department"))
-                // {
-                //     ModelState.AddModelError("Claim", "User not in Tech department");
-                //     return View(model);
-                // }
-                if (await _userManager.IsInRoleAsync(user, "Member"))
+                return RedirectToAction("MFAcheck");
+            }
+            else
+            {
+                if (result.Succeeded)
                 {
-                    return RedirectToAction("Member", "Home");
+                    var user = await _userManager.FindByEmailAsync(model.Username);
+                    // var userClaims = await _userManager.GetClaimsAsync(user);
+                    // if (!userClaims.Any(c => c.Type == "Department"))
+                    // {
+                    //     ModelState.AddModelError("Claim", "User not in Tech department");
+                    //     return View(model);
+                    // }
+                    if (await _userManager.IsInRoleAsync(user, "Member"))
+                    {
+                        return RedirectToAction("Member", "Home");
+                    }
+                    return RedirectToAction("Index", "Home");
                 }
-                return RedirectToAction("Index", "Home");
             }
             ModelState.AddModelError("Login", "Cannot login");
         }
         return View(model);
     }
+    
+    public IActionResult MFACheck()
+    {
+        return View(new MNFACheckViewModel());
+    }
 
+    [HttpPost]
+    public async Task<IActionResult> MFACheck(MNFACheckViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var result = await _signinManager.TwoFactorAuthenticatorSignInAsync(model.Code, false, false);
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Index", "Home", null); 
+            }
+        }
+        return View(model);
+    }
     public async Task<IActionResult> Signout()
     {
         await _signinManager.SignOutAsync();
