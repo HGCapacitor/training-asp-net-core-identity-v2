@@ -94,7 +94,8 @@ public class IdentityController : Controller
         await _userManager.ResetAuthenticatorKeyAsync(user);
         var token = await _userManager.GetAuthenticatorKeyAsync(user);
         var qrCodeUrl = $"otpauth://totp/{provider}:{user.Email}?secret={token}&issuer={provider}&digits=6";
-        var model = new MFAViewModel{Token = token, QRCodeUrl = qrCodeUrl};
+
+        var model = new MFAViewModel {Token = token , QRCodeUrl= qrCodeUrl };
         return View(model);
     }
 
