@@ -73,7 +73,7 @@ public class IdentityController : Controller
                         From = "info@fun.com",
                         To = user.Email,
                         Subject = "Confirm you email address",
-                        Body = confirmationLink
+                        Body  = System.Web.HttpUtility.UrlEncode(confirmationLink),
                     });
                     return RedirectToAction("Signin");
                 }
